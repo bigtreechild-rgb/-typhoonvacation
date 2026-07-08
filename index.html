@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>放假嗎，市長？— 颱風假的抉擇</title>
+<style>
+  :root{
+    --bg:#0a1420; --bg2:#0d1a26; --panel:#132436; --panel2:#0f1d2b; --line:#22384f;
+    --ink:#e6f0f8; --muted:#89a0b2; --dim:#5f7385;
+    --radar:#35e0a1; --radar-dim:#1c6e52;
+    --amber:#ffb340; --red:#ff6060; --blue:#4aa8ff;
+    --sat:#57d4a2; --econ:#ffc463;
+    --sans: "PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono: ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(1200px 700px at 50% -10%, #12283b 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink); font-family:var(--sans);
+    min-height:100dvh; display:flex; align-items:flex-start; justify-content:center;
+    padding:16px 14px calc(28px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased; line-height:1.55; overflow-x:hidden;
+  }
+  #app{width:100%; max-width:860px;}
+  .screen{display:none; animation:fade .35s ease both;}
+  .screen.on{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .mono{font-family:var(--mono); font-variant-numeric:tabular-nums;}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.28em; color:var(--radar);
+    text-transform:uppercase; display:inline-flex; align-items:center; gap:8px;}
+  .eyebrow::before{content:""; width:22px; height:1px; background:var(--radar); opacity:.6;}
+
+  /* ===== Title ===== */
+  .title-wrap{text-align:center; padding:34px 6px 12px;}
+  .logo{
+    font-weight:900; letter-spacing:-.02em; line-height:.98;
+    font-size:clamp(40px,11vw,78px);
+    background:linear-gradient(180deg,#eef7ff, #9fc4dc);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 2px 30px rgba(53,224,161,.12);
+  }
+  .logo .q{color:var(--radar); -webkit-text-fill-color:var(--radar); text-shadow:0 0 26px rgba(53,224,161,.5);}
+  .subtitle{margin-top:14px; color:var(--muted); font-size:15px; letter-spacing:.04em;}
+  .tagline{margin:22px auto 0; max-width:520px; color:var(--dim); font-size:13.5px;}
+
+  /* ===== Buttons ===== */
+  .btn{
+    font-family:var(--sans); font-size:15px; font-weight:700; cursor:pointer;
+    border:1px solid var(--line); background:var(--panel); color:var(--ink);
+    padding:13px 22px; border-radius:12px; transition:.16s ease; letter-spacing:.02em;
+  }
+  .btn:hover{border-color:var(--radar); transform:translateY(-1px); box-shadow:0 6px 22px -12px rgba(53,224,161,.6);}
+  .btn:active{transform:translateY(0);}
+  .btn:focus-visible{outline:2px solid var(--radar); outline-offset:2px;}
+  .btn.primary{background:linear-gradient(180deg,#1c6e52,#14563f); border-color:#2b8f6b; color:#eafff6;}
+  .btn.primary:hover{box-shadow:0 8px 26px -10px rgba(53,224,161,.7);}
+  .btn.ghost{background:transparent;}
+  .btn.big{width:100%; padding:16px; font-size:16px;}
+  .center{display:flex; justify-content:center; gap:12px; flex-wrap:wrap;}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid var(--line);
+    border-radius:16px; padding:18px;}
+  .muted{color:var(--muted);} .dim{color:var(--dim);}
+  .small{font-size:12.5px;}
+
+  /* ===== City select ===== */
+  h2.head{font-size:22px; font-weight:800; letter-spacing:.01em; margin:6px 0 2px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:16px;}
+  .city{
+    text-align:left; cursor:pointer; border:1px solid var(--line); border-radius:13px;
+    background:var(--panel); padding:13px 14px; transition:.15s ease; position:relative; overflow:hidden;
+  }
+  .city:hover{border-color:var(--radar); transform:translateY(-2px);}
+  .city.sel{border-color:var(--radar); box-shadow:inset 0 0 0 1px var(--radar), 0 10px 30px -16px rgba(53,224,161,.8);}
+  .city .cn{font-weight:800; font-size:17px;}
+  .city .tag{font-family:var(--mono); font-size:10px; letter-spacing:.12em; color:var(--radar); margin-top:2px;}
+  .risk{display:flex; gap:5px; margin-top:10px;}
+  .risk span{flex:1; height:4px; border-radius:3px; background:#1b3247;}
+  .risk .f{background:var(--blue);} .risk .w{background:var(--amber);} .risk .l{background:var(--red);}
+  .city-detail{margin-top:16px; min-height:64px;}
+
+  /* ===== HUD (meters) ===== */
+  .hud{display:flex; gap:12px; margin-bottom:14px;}
+  .meter{flex:1; background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:11px 13px;}
+  .meter .lbl{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); font-weight:700; letter-spacing:.03em;}
+  .meter .lbl b{font-family:var(--mono); color:var(--ink); font-size:14px;}
+  .bar{height:8px; background:#16283a; border-radius:5px; margin-top:8px; overflow:hidden;}
+  .bar>i{display:block; height:100%; border-radius:5px; transition:width .8s cubic-bezier(.22,1,.36,1);}
+  .bar.sat>i{background:linear-gradient(90deg,#2f9d76,var(--sat));}
+  .bar.econ>i{background:linear-gradient(90deg,#c8912f,var(--econ));}
+  .term-pill{font-family:var(--mono); font-size:11px; letter-spacing:.1em; color:var(--muted);
+    border:1px solid var(--line); border-radius:20px; padding:5px 12px; display:inline-flex; gap:8px; align-items:center;}
+  .term-pill b{color:var(--radar);}
+
+  /* ===== Dashboard ===== */
+  .dash-top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px;}
+  .dash{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:640px){ .dash{grid-template-columns:1fr;} }
+  .radarbox{background:radial-gradient(circle at 50% 50%, #0c2233, #081521); border:1px solid var(--line);
+    border-radius:16px; padding:12px; display:flex; flex-direction:column; align-items:center;}
+  canvas{width:100%; max-width:320px; height:auto; display:block;}
+  .stormname{font-weight:900; font-size:20px; margin-top:6px; letter-spacing:.02em;}
+  .stormname small{font-family:var(--mono); font-weight:400; color:var(--muted); font-size:12px; margin-left:6px;}
+
+  .stat-list{display:flex; flex-direction:column; gap:9px;}
+  .stat{display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+    border-bottom:1px dashed #1d3145; padding-bottom:8px;}
+  .stat .k{color:var(--muted); font-size:13px; font-weight:600; white-space:nowrap;}
+  .stat .v{font-family:var(--mono); font-size:15px; font-weight:700; text-align:right;}
+  .stat .v.hi{color:var(--red);} .stat .v.mid{color:var(--amber);} .stat .v.ok{color:var(--radar);}
+  .alert-chip{display:inline-block; font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.06em;
+    padding:5px 11px; border-radius:8px; border:1px solid; margin-bottom:2px;}
+  .alert-chip.land{color:var(--red); border-color:#5a2626; background:#2a1414;}
+  .alert-chip.sea{color:var(--amber); border-color:#5a4520; background:#2a2010;}
+  .remark{margin-top:12px; font-size:13px; color:#c6d6e2; background:#0e1f2e; border-left:3px solid var(--radar);
+    padding:10px 12px; border-radius:0 8px 8px 0;}
+  .remark b{color:var(--radar);}
+
+  .decide{margin-top:16px;}
+  .decide-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media(max-width:520px){ .decide-row{grid-template-columns:1fr;} }
+  .decide-btn{cursor:pointer; border-radius:14px; padding:16px; border:1.5px solid var(--line); text-align:center;
+    background:var(--panel); transition:.16s ease;}
+  .decide-btn:hover{transform:translateY(-2px);}
+  .decide-btn.off:hover{border-color:var(--amber); box-shadow:0 10px 28px -14px rgba(255,179,64,.7);}
+  .decide-btn.work:hover{border-color:var(--blue); box-shadow:0 10px 28px -14px rgba(74,168,255,.7);}
+  .decide-btn .t{font-weight:900; font-size:18px;}
+  .decide-btn.off .t{color:var(--amber);} .decide-btn.work .t{color:var(--blue);}
+  .decide-btn .d{font-size:12px; color:var(--muted); margin-top:3px;}
+  .wait-row{display:flex; justify-content:center; margin-top:12px;}
+  .wait-btn{font-family:var(--mono); font-size:12.5px; color:var(--muted); background:transparent;
+    border:1px dashed var(--line); border-radius:20px; padding:8px 16px; cursor:pointer; transition:.15s;}
+  .wait-btn:hover{color:var(--radar); border-color:var(--radar);}
+  .wait-btn:disabled{opacity:.4; cursor:default; border-style:solid;}
+  .updated-tag{color:var(--radar); font-family:var(--mono); font-size:11px; letter-spacing:.08em;}
+
+  /* ===== Decision timeline ===== */
+  .frame-strip{display:flex; gap:6px; margin:2px 0 6px;}
+  .frame-strip .fp{flex:1; text-align:center; padding:8px 4px; border-radius:10px; border:1px solid var(--line);
+    background:#0c1c2b; position:relative; transition:.18s ease;}
+  .frame-strip .fp .c{font-family:var(--mono); font-weight:800; font-size:13px; color:var(--dim);}
+  .frame-strip .fp .n{font-size:10.5px; color:var(--muted); margin-top:1px; letter-spacing:.02em;}
+  .frame-strip .fp.done{opacity:.5;}
+  .frame-strip .fp.done .c{color:var(--radar);}
+  .frame-strip .fp.cur{border-color:var(--radar); box-shadow:inset 0 0 0 1px var(--radar);}
+  .frame-strip .fp.cur .c{color:var(--radar);}
+  .frame-strip .fp.cur .n{color:var(--ink);}
+  .frame-strip .fp.future{opacity:.7;}
+  .clockline{display:flex; align-items:center; gap:8px; margin:2px 0 2px; font-size:12.5px; color:var(--muted);}
+  .clockline b{color:var(--radar); font-family:var(--mono);}
+  .fc-note{margin-top:8px; font-size:12.5px; color:#cbd9e4; background:#0e1f2e; border-left:3px solid var(--amber);
+    padding:8px 11px; border-radius:0 8px 8px 0;}
+  .deadline-tag{font-family:var(--mono); font-size:10.5px; color:var(--red); border:1px solid #5a2626;
+    background:#2a1414; border-radius:6px; padding:2px 7px; margin-left:auto;}
+  .reveal-code{font-family:var(--mono); font-size:12px; color:var(--muted); letter-spacing:.06em; text-align:center; margin-bottom:2px;}
+  .declassify{margin-top:16px; border:1px dashed var(--radar-dim); border-radius:12px; padding:12px 14px;
+    background:linear-gradient(180deg,#0e2130,#0c1a27);}
+  .declassify .dc-h{font-family:var(--mono); font-size:10.5px; letter-spacing:.2em; color:var(--radar); text-transform:uppercase;}
+  .declassify .dc-name{font-weight:900; font-size:19px; margin-top:5px;}
+  .declassify .dc-name small{font-family:var(--mono); font-weight:400; font-size:12px; color:var(--muted); margin-left:7px;}
+  .declassify .dc-real{font-size:13px; color:#c6d6e2; margin-top:6px;}
+  .declassify .dc-lore{font-size:12.5px; color:#9db4c4; margin-top:9px; padding-top:9px; border-top:1px dashed #1d3145; line-height:1.7;}
+  .declassify .dc-lore::before{content:"📖 當年災情速覽　"; color:var(--radar); font-weight:700; font-size:11.5px;}
+
+  /* ===== Reveal ===== */
+  .verdict{font-weight:900; font-size:clamp(26px,7vw,40px); letter-spacing:.02em; text-align:center; margin:4px 0 2px;}
+  .verdict.good{color:var(--radar);} .verdict.bad{color:var(--red);} .verdict.meh{color:var(--amber);}
+  .sev-meter{height:14px; background:#132638; border-radius:8px; overflow:hidden; margin:14px 0 6px; border:1px solid var(--line);}
+  .sev-meter>i{display:block; height:100%; width:0; border-radius:8px; transition:width 1.1s cubic-bezier(.2,.9,.3,1);
+    background:linear-gradient(90deg,#3fa06f,#ffb340 55%,#ff5f5f);}
+  .sev-scale{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10.5px; color:var(--dim);}
+  .delta-row{display:flex; gap:12px; margin-top:16px;}
+  .delta{flex:1; background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:12px 14px; text-align:center;}
+  .delta .k{font-size:12px; color:var(--muted); font-weight:700;}
+  .delta .v{font-family:var(--mono); font-size:24px; font-weight:800; margin-top:4px;}
+  .delta .v.up{color:var(--sat);} .delta .v.down{color:var(--red);}
+  .ticker{margin-top:16px; overflow:hidden; border:1px solid var(--line); border-radius:10px; background:#0c1c2b;}
+  .ticker .band{display:flex; align-items:center; gap:10px; padding:9px 12px; border-bottom:1px solid var(--line);}
+  .ticker .live{font-family:var(--mono); font-size:10px; font-weight:800; letter-spacing:.12em; color:#fff;
+    background:var(--red); padding:2px 7px; border-radius:4px;}
+  .ticker .headline{font-size:13.5px; font-weight:600; color:#dbe7f0;}
+  .comments{padding:6px 12px 12px;}
+  .cmt{display:flex; gap:9px; align-items:flex-start; padding:8px 0; border-bottom:1px dashed #17293a;}
+  .cmt:last-child{border-bottom:none;}
+  .ava{width:26px; height:26px; border-radius:50%; flex-shrink:0; margin-top:2px;
+    background:linear-gradient(135deg,#274d66,#1a3547); display:flex; align-items:center; justify-content:center;
+    font-size:12px; color:#9fc0d4; font-weight:800;}
+  .cmt .txt{font-size:13.5px; color:#cddae4;}
+  .cmt .txt b{color:#9fb6c6; font-weight:700; margin-right:6px;}
+
+  /* ===== Ending ===== */
+  .rank{font-weight:900; font-size:clamp(28px,8vw,46px); text-align:center; letter-spacing:.03em;}
+  .end-desc{text-align:center; color:#cddae4; max-width:560px; margin:14px auto 0; font-size:14.5px;}
+  .scoreline{display:flex; justify-content:center; gap:26px; margin:20px 0; font-family:var(--mono);}
+  .scoreline div{text-align:center;}
+  .scoreline .n{font-size:30px; font-weight:800;}
+  .scoreline .l{font-size:11px; color:var(--muted); letter-spacing:.1em;}
+
+  .rain-canvas{position:fixed; inset:0; pointer-events:none; z-index:5; opacity:0; transition:opacity .6s;}
+  .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .brand{font-weight:800; font-size:14px; letter-spacing:.02em; color:var(--muted); display:flex; gap:8px; align-items:center;}
+  .brand .dot{width:8px; height:8px; border-radius:50%; background:var(--radar); box-shadow:0 0 10px var(--radar);
+    animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .iconbtn{background:transparent; border:1px solid var(--line); color:var(--muted); width:34px; height:34px;
+    border-radius:9px; cursor:pointer; font-size:15px; transition:.15s;}
+  .iconbtn:hover{border-color:var(--radar); color:var(--radar);}
+  .foot{text-align:center; color:var(--dim); font-size:11px; margin-top:26px; line-height:1.7;}
+</style>
+</head>
+<body>
+<canvas id="rain" class="rain-canvas"></canvas>
+<div id="app">
+
+  <!-- ============ TITLE ============ -->
+  <section id="s-title" class="screen on">
+    <div class="topbar">
+      <span class="brand"><span class="dot"></span>災害應變決策模擬</span>
+      <button class="iconbtn" id="muteBtn" title="音效開關">♪</button>
+    </div>
+    <div class="title-wrap">
+      <div class="eyebrow">Typhoon Day-Off Simulator</div>
+      <div class="logo">放假嗎<span class="q">，</span>市長<span class="q">？</span></div>
+      <div class="subtitle">你是台灣某縣市的市長。颱風來了，停不停班停不停課，一句話定生死。</div>
+      <p class="tagline">放了假結果太陽高照，被罵「亂放假、老闆哭哭」；沒放假結果淹到膝蓋，被罵「市長下台」。
+        資訊只有一份氣象預報，而預報，從來不會百分之百準。</p>
+      <div class="center" style="margin-top:28px;">
+        <button class="btn primary" id="startBtn">開始任期</button>
+        <button class="btn ghost" id="howBtn">怎麼玩</button>
+      </div>
+      <div id="bestLine" class="foot" style="margin-top:22px;"></div>
+    </div>
+    <div id="howBox" class="card" style="display:none; margin-top:8px;">
+      <h2 class="head">遊戲規則</h2>
+      <p class="small muted" style="margin-top:10px;">
+        ・一個任期 <b style="color:var(--radar)">4 年</b>，每年 3 個颱風、共 <b style="color:var(--radar)">12 場</b>。颱風以「該年第 N 號」編號（不透露真名，免得你用歷史印象作弊）。每一場，你會從 <b style="color:var(--radar)">三天前</b> 開始盯著預報——三天前、兩天前、前一天晚上、當天清晨，共四個時間點。<br><br>
+        ・畫面上會有一張 <b>路徑預報圖</b>：颱風位置、暴風圈，以及一個會隨時間<b>收斂</b>的「路徑誤差錐」。越接近，預報越準。<br><br>
+        ・每個時間點你可以：<b style="color:var(--amber)">宣布停班停課</b>、<b style="color:var(--blue)">拍板照常</b>，或 <b>繼續觀望</b> 等下一份預報。<br><br>
+        ・<b>時機是關鍵</b>：太早拍板＝資訊還不足、賭很大；等到 <b>前一天晚上</b> 通常最剛好；拖到 <b>當天清晨</b> 才放假，就算放對了也會被嫌「太晚宣布」。<br><br>
+        ・決定後揭曉「實際災情」，結算 <b style="color:var(--sat)">人民滿意度</b> 與 <b style="color:var(--econ)">經濟發展度</b>。放假一定損經濟；不放假保經濟但賭它別出事。<br><br>
+        ・關鍵陷阱：<b>官方強度會騙人</b>。有的「中颱」雨量破表（看雨，別只看名號）；有的「超強颱」其實只是掃過去（看路徑錐往哪偏）。<br><br>
+        ・災情揭曉後才會<b style="color:var(--radar)">解密</b>：這顆颱風取材自哪一個真實颱風、當年造成了什麼災情。<br><br>
+        ・任期結束看你能不能<b style="color:var(--radar)">連任</b>——讓你連任的是<b>民心</b>，不是帳面經濟。
+      </p>
+      <div class="center" style="margin-top:14px;"><button class="btn" id="howClose">了解了</button></div>
+    </div>
+    <div class="foot">靈感取材自台灣歷年真實颱風——是哪幾個？遊戲裡等你「解密」。<br>遊戲數值為戲劇化改編，非官方氣象紀錄。</div>
+  </section>
+
+  <!-- ============ CITY SELECT ============ -->
+  <section id="s-city" class="screen">
+    <div class="topbar"><span class="brand"><span class="dot"></span>就任儀式</span></div>
+    <div class="eyebrow">Step 01 — 選擇轄區</div>
+    <h2 class="head">你要當哪裡的市長？</h2>
+    <p class="muted small">每個縣市的地形體質不同——同一個颱風，在台北和台東是完全不同的難題。
+      <span class="mono" style="color:var(--blue)">▍淹水</span>
+      <span class="mono" style="color:var(--amber)">▍強風</span>
+      <span class="mono" style="color:var(--red)">▍土石流</span></p>
+    <div class="grid" id="cityGrid"></div>
+    <div id="cityDetail" class="card city-detail" style="display:none;"></div>
+    <div class="center" style="margin-top:18px;">
+      <button class="btn ghost" id="cityBack">返回</button>
+      <button class="btn primary" id="cityGo" disabled>宣誓就職</button>
+    </div>
+  </section>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section id="s-dash" class="screen">
+    <div class="dash-top">
+      <span class="term-pill">第<b id="yearNum">1</b>年 · 第<b id="termNum">1</b>/12場　·　<span id="dashCity">—</span>市長</span>
+      <button class="iconbtn" id="muteBtn2" title="音效開關">♪</button>
+    </div>
+    <div class="hud">
+      <div class="meter">
+        <div class="lbl"><span>人民滿意度</span><b id="satVal">50</b></div>
+        <div class="bar sat"><i id="satBar" style="width:50%"></i></div>
+      </div>
+      <div class="meter">
+        <div class="lbl"><span>經濟發展度</span><b id="econVal">50</b></div>
+        <div class="bar econ"><i id="econBar" style="width:50%"></i></div>
+      </div>
+    </div>
+
+    <div class="clockline">
+      <span>目前時間：<b id="clockLabel">三天前</b></span>
+      <span id="deadlineTag" class="deadline-tag" style="display:none;"></span>
+    </div>
+    <div class="frame-strip" id="frameStrip"></div>
+
+    <div class="dash">
+      <div class="radarbox">
+        <div class="eyebrow" style="align-self:flex-start; margin-bottom:6px;">路徑預報 · 誤差錐模擬</div>
+        <canvas id="radar" width="640" height="640"></canvas>
+        <div class="stormname" id="stormName">—</div>
+      </div>
+      <div>
+        <div id="alertChip" class="alert-chip land">陸上颱風警報</div>
+        <div class="stat-list" id="statList"></div>
+        <div class="remark" id="remark"></div>
+        <div class="fc-note" id="fcNote"></div>
+      </div>
+    </div>
+
+    <div class="decide">
+      <div class="decide-row">
+        <div class="decide-btn off" id="btnOff" role="button" tabindex="0">
+          <div class="t">宣布停班停課</div>
+          <div class="d">放颱風假 · 保平安、損經濟</div>
+        </div>
+        <div class="decide-btn work" id="btnWork" role="button" tabindex="0">
+          <div class="t">拍板照常上班</div>
+          <div class="d">拚經濟 · 賭它不會太嚴重</div>
+        </div>
+      </div>
+      <div class="wait-row">
+        <button class="wait-btn" id="waitBtn">繼續觀望 · 等下一份預報 →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REVEAL ============ -->
+  <section id="s-reveal" class="screen">
+    <div class="topbar"><span class="brand"><span class="dot"></span>災情回報</span>
+      <span class="term-pill" id="revealTerm">颱風 1 / 6</span></div>
+    <div class="card">
+      <div class="reveal-code" id="revealCode"></div>
+      <div class="verdict" id="verdict">—</div>
+      <p class="muted small" id="verdictSub" style="text-align:center;"></p>
+      <div class="sev-meter"><i id="sevFill"></i></div>
+      <div class="sev-scale"><span>風平浪靜</span><span>有點狀況</span><span>災情慘重</span></div>
+      <div class="declassify" id="declassify">
+        <div class="dc-h">檔案解密 · Declassified</div>
+        <div class="dc-name" id="dcName">—</div>
+        <div class="dc-real" id="dcReal"></div>
+        <div class="dc-lore" id="dcLore"></div>
+      </div>
+      <div class="delta-row">
+        <div class="delta"><div class="k">人民滿意度</div><div class="v" id="dSat">—</div></div>
+        <div class="delta"><div class="k">經濟發展度</div><div class="v" id="dEcon">—</div></div>
+      </div>
+      <div class="ticker">
+        <div class="band"><span class="live">LIVE</span><span class="headline" id="headline"></span></div>
+        <div class="comments" id="comments"></div>
+      </div>
+    </div>
+    <div class="center" style="margin-top:18px;">
+      <button class="btn primary" id="nextBtn">下一個颱風 →</button>
+    </div>
+  </section>
+
+  <!-- ============ ENDING ============ -->
+  <section id="s-end" class="screen">
+    <div class="topbar"><span class="brand"><span class="dot"></span>任期總結</span></div>
+    <div class="card" style="text-align:center;">
+      <div class="eyebrow" style="justify-content:center;">Final Evaluation</div>
+      <div class="rank" id="rankTitle" style="margin-top:10px;">—</div>
+      <div class="scoreline">
+        <div><div class="n" id="endSat" style="color:var(--sat)">0</div><div class="l">人民滿意度</div></div>
+        <div><div class="n" id="endEcon" style="color:var(--econ)">0</div><div class="l">經濟發展度</div></div>
+      </div>
+      <p class="end-desc" id="endDesc"></p>
+      <div id="logBox" class="card" style="text-align:left; margin-top:20px; background:#0c1c2b;"></div>
+      <div class="center" style="margin-top:20px;">
+        <button class="btn primary" id="againBtn">再來一任</button>
+        <button class="btn ghost" id="menuBtn">回主選單</button>
+      </div>
+    </div>
+    <div class="foot">感謝你的服務，市長。下一場風雨，還會有人需要你做決定。</div>
+  </section>
+
+</div>
+
+<script>
+"use strict";
+/* =========================================================
+   核心資料與邏輯（與 headless 模擬同源，已通過平衡驗證）
+   ========================================================= */
+// ===== 放假嗎，市長？— 核心邏輯（純函式，可 headless 測試）=====
+// v2：三天前開始的多時點決策 + 路徑錐模擬 + 颱風本名事後揭露
+
+const REGIONS = ["北北基","桃竹苗","中彰投","雲嘉南","高屏","宜蘭","花東"];
+
+// 縣市：econ 經濟權重1-10；flood/wind/land 體質 0-1；mx,my 地圖上正規化座標(0..1)
+const CITIES = {
+  taipei:   { name:"台北市", region:"北北基", econ:10, flood:.7, wind:.4, land:.2, mx:.455, my:.175, blurb:"全台經濟心臟。盆地地形，逢滯留豪雨易積淹（納莉陰影）。停班一天損失最重。" },
+  ntpc:     { name:"新北市", region:"北北基", econ:8,  flood:.6, wind:.5, land:.6, mx:.435, my:.205, blurb:"幅員最廣。山區聚落多，土石流與坍方風險高。" },
+  taichung: { name:"台中市", region:"中彰投", econ:8,  flood:.4, wind:.4, land:.3, mx:.400, my:.400, blurb:"中部大城，多數颱風受中央山脈屏障，直接衝擊相對少。" },
+  tainan:   { name:"台南市", region:"雲嘉南", econ:6,  flood:.7, wind:.5, land:.1, mx:.375, my:.620, blurb:"地勢低平，逢大雨排水吃緊，沿海淹水風險高。" },
+  kaohsiung:{ name:"高雄市", region:"高屏",   econ:8,  flood:.7, wind:.5, land:.3, mx:.390, my:.685, blurb:"南部工業重鎮。凱米、莫拉克都曾釀嚴重淹水。" },
+  pingtung: { name:"屏東縣", region:"高屏",   econ:4,  flood:.7, wind:.6, land:.6, mx:.440, my:.740, blurb:"最南端，山區、沿海、農業並存，多重風險。" },
+  yilan:    { name:"宜蘭縣", region:"宜蘭",   econ:4,  flood:.8, wind:.6, land:.5, mx:.505, my:.245, blurb:"迎風面地形，颱風常帶來破表雨量。" },
+  hualien:  { name:"花蓮縣", region:"花東",   econ:3,  flood:.5, wind:.7, land:.7, mx:.510, my:.470, blurb:"地形陡峭，強風與坍方是主要威脅。" },
+  taitung:  { name:"台東縣", region:"花東",   econ:3,  flood:.5, wind:.9, land:.6, mx:.490, my:.635, blurb:"颱風登陸首站，常首當其衝，焚風與強風極端。" },
+  nantou:   { name:"南投縣", region:"中彰投", econ:4,  flood:.4, wind:.3, land:.9, mx:.448, my:.455, blurb:"全台唯一不臨海。山高谷深，豪雨土石流風險全台最高。" },
+};
+const CITY_ORDER = ["taipei","ntpc","taichung","tainan","kaohsiung","pingtung","yilan","hualien","taitung","nantou"];
+
+// 決策時間軸：三天前 → 當天清晨。sigmaMul=該時點不確定度倍率；coneMul=路徑錐寬度倍率；adv=颱風沿軌跡進度
+const FRAMES = [
+  { key:"D-3",   label:"三天前",     sigmaMul:1.6,  coneMul:1.75, adv:0.16, timing:"early",  hint:"外海生成，路徑與強度變數都還很大。" },
+  { key:"D-2",   label:"兩天前",     sigmaMul:1.2,  coneMul:1.20, adv:0.34, timing:"early",  hint:"持續接近，預報開始收斂，但仍可能偏移。" },
+  { key:"D-1晚", label:"前一天晚間", sigmaMul:0.8,  coneMul:0.72, adv:0.56, timing:"ontime", deadline:"隔日", hint:"暴風圈逼近——宣布『隔日』停班停課的關鍵時刻。" },
+  { key:"當天",  label:"當天清晨",   sigmaMul:0.45, coneMul:0.34, adv:0.74, timing:"late",   deadline:"當日", hint:"最接近／通過中，資訊最準，但此刻才宣布已是『當日假』。" },
+];
+
+// 編號制：每年 3 個颱風，依「該年第 N 號」編號（與真實颱風命名脫鉤，本名事後揭露）
+const PER_YEAR = 3;
+function stormCode(i){ return { year: Math.floor(i/PER_YEAR)+1, num: (i%PER_YEAR)+1, text: `${(i%PER_YEAR)+1}號` }; }
+
+// 颱風：以真實歷史颱風為靈感（數值為遊戲化近似值，非官方紀錄）
+// track: 地圖正規化座標控制點 [起,中,迄]（x向右、y向下，島在中央；x>0.6為東側外海，y>0.9為南方海面）
+const TYPHOONS = [
+  { id:"soudelor", name:"蘇迪勒", year:2015, label:"強烈颱風", windForecast:51, radius:250, sigma:1.0, alert:"陸上颱風警報",
+    path:"自東方海面直撲，穿越北台灣後出海。", remark:"強風轎車級陣風，北部務必戒備。路徑明確。",
+    real:"2015年重創北台灣，強陣風吹翻招牌路樹，數百萬戶停電。",
+    lore:"全台逾400萬戶停電，創下單一颱風停電戶數紀錄；烏來山區土石流、聯外道路中斷多日；台北兩座被吹歪的「歪腰郵筒」意外爆紅，成了災後的療癒地標。",
+    track:[[1.06,0.20],[0.62,0.19],[0.16,0.23]],
+    danger:{北北基:8,桃竹苗:7,中彰投:5,雲嘉南:4,高屏:4,宜蘭:8,花東:7},
+    rain:{北北基:400,桃竹苗:350,中彰投:300,雲嘉南:250,高屏:250,宜蘭:600,花東:500} },
+  { id:"nepartak", name:"尼伯特", year:2016, label:"強烈颱風", windForecast:55, radius:150, sigma:1.1, alert:"陸上颱風警報",
+    path:"由西太平洋高速西進，直撲台東登陸。", remark:"小而強的『纖細型』強颱，暴風圈小但威力極集中於東南部。",
+    real:"2016年以巔峰強度直撲台東，市區宛如被『洗過』，是東南部的惡夢。",
+    lore:"台東測得超過17級的破表陣風，市區招牌與路樹幾乎全倒、鐵皮屋頂成片掀飛，農損逾十億元，被台東人視為數十年來最猛的一擊。",
+    track:[[1.12,0.52],[0.66,0.60],[0.30,0.70]],
+    danger:{北北基:2,桃竹苗:3,中彰投:3,雲嘉南:4,高屏:5,宜蘭:3,花東:9},
+    rain:{北北基:120,桃竹苗:150,中彰投:200,雲嘉南:300,高屏:350,宜蘭:200,花東:700} },
+  { id:"morakot", name:"莫拉克", year:2009, label:"中度颱風", windForecast:40, radius:220, sigma:1.6, deceptive:"under", alert:"陸上颱風警報",
+    path:"緩慢穿越中台灣，引進超強西南氣流滯留南部。", remark:"『中颱』但雨量恐破紀錄——風不大，真正的殺手是雨。南部與山區務必嚴防。",
+    real:"八八風災。中颱掛名，南部與山區降雨量卻創世界紀錄，釀成慘痛災情。",
+    lore:"阿里山累積雨量近3000毫米、直逼世界紀錄；高雄甲仙小林村遭土石流掩埋、數百人罹難，全台約六百多人死亡或失蹤，是台灣半世紀來最慘重的風災，也徹底改寫了防災與撤村制度。",
+    track:[[1.02,0.42],[0.60,0.46],[0.34,0.56]], loiter:true,
+    danger:{北北基:3,桃竹苗:3,中彰投:5,雲嘉南:7,高屏:9,宜蘭:5,花東:6,南投縣:10},
+    rain:{北北基:300,桃竹苗:350,中彰投:800,雲嘉南:1800,高屏:2500,宜蘭:500,花東:1200} },
+  { id:"nari", name:"納莉", year:2001, label:"中度颱風", windForecast:38, radius:200, sigma:1.8, deceptive:"under", alert:"陸上颱風警報",
+    path:"路徑打轉、移速極慢，長時間滯留北台灣。", remark:"強度不算頂尖，但『滯留』才可怕——累積雨量恐灌爆都會排水系統。",
+    real:"2001年在台灣上空滯留、打轉數日，台北捷運與地下街全泡在水裡。",
+    lore:"台北盆地大淹水：台北車站與捷運多條路線泡水，北捷停擺近三個月，全台九十多人罹難。從此台北的防洪標準與捷運防水閘門全面升級。",
+    track:[[0.80,0.05],[0.60,0.26],[0.42,0.10]], loop:true,
+    danger:{北北基:8,桃竹苗:6,中彰投:5,雲嘉南:4,高屏:3,宜蘭:6,花東:5},
+    rain:{北北基:700,桃竹苗:500,中彰投:400,雲嘉南:300,高屏:250,宜蘭:550,花東:400} },
+  { id:"wayne", name:"韋恩", year:1986, label:"中度颱風", windForecast:42, radius:200, sigma:2.6, alert:"陸上颱風警報",
+    path:"史上最詭異路徑之一：三度登陸、海上打轉，方向難測。", remark:"路徑預報信心度極低，隨時可能轉向。中南部與澎湖高度警戒。",
+    real:"1986年三度登陸、來回打轉，是台灣氣象史上最難捉摸的路徑之一。",
+    lore:"罕見自西部（濁水溪口一帶）登陸，之後在海上打轉、反覆三度襲台，中南部與澎湖重創、八十餘人死亡。至今仍是氣象課本上「最難預測路徑」的代表作。",
+    track:[[0.56,1.05],[0.40,0.70],[0.62,0.48]], erratic:true,
+    danger:{北北基:3,桃竹苗:4,中彰投:6,雲嘉南:6,高屏:5,宜蘭:3,花東:4},
+    rain:{北北基:200,桃竹苗:300,中彰投:450,雲嘉南:500,高屏:400,宜蘭:250,花東:300} },
+  { id:"tembin", name:"天秤", year:2012, label:"輕度颱風", windForecast:33, radius:120, sigma:2.4, alert:"海上陸上颱風警報",
+    path:"在巴士海峽一帶打轉、去而復返，威脅時間拉得很長。", remark:"強度不高卻賴著不走，南部與東部可能連續多日受影響。是否連放假是難題。",
+    real:"2012年在南方海面繞了一大圈去而復返，讓南部與東部反覆警戒多日。",
+    lore:"重創恆春半島與蘭嶼——蘭嶼民宅屋頂被掀、機車被吹進海裡；出海後大迴轉殺個「回馬槍」二度影響，讓南台灣連續警戒近一週。",
+    track:[[0.60,1.06],[0.50,0.90],[0.62,1.00]], loop:true,
+    danger:{北北基:1,桃竹苗:2,中彰投:2,雲嘉南:4,高屏:5,宜蘭:2,花東:6},
+    rain:{北北基:100,桃竹苗:120,中彰投:200,雲嘉南:300,高屏:400,宜蘭:150,花東:450} },
+  { id:"gaemi", name:"凱米", year:2024, label:"強烈颱風", windForecast:48, radius:230, sigma:1.3, alert:"陸上颱風警報",
+    path:"自東部海面接近、穿越北部後西行，西南氣流灌注中南部。", remark:"結構完整的濕颱，中南部連日致災性降雨，高雄尤須防淹。",
+    real:"2024年颱風，西南氣流讓中南部連日豪雨，高雄多處嚴重積淹。",
+    lore:"西南氣流連日灌注，高雄、台南多處大淹水，部分山區雨量直逼莫拉克等級；全台多縣市罕見連放兩天颱風假。",
+    track:[[1.05,0.30],[0.60,0.26],[0.30,0.40]], loiter:true,
+    danger:{北北基:5,桃竹苗:5,中彰投:6,雲嘉南:7,高屏:8,宜蘭:6,花東:5,南投縣:6},
+    rain:{北北基:400,桃竹苗:450,中彰投:700,雲嘉南:900,高屏:1200,宜蘭:500,花東:500} },
+  { id:"mangkhut", name:"山竹", year:2018, label:"超級強烈颱風", windForecast:65, radius:320, sigma:1.4, deceptive:"over", alert:"海上颱風警報",
+    path:"巨型颱風，中心通過巴士海峽以南，不登陸台灣本島。", remark:"強度嚇人，但預測路徑偏南、主要影響華南。本島以外圍風雨為主。",
+    real:"2018年超強颱，名號嚇人，但主體掃過巴士海峽以南，重擊的是華南而非台灣本島。",
+    lore:"台灣本島僅外圍風雨、有驚無險；但同一顆颱風重創菲律賓呂宋、橫掃香港——香港六萬多宗塌樹、高樓玻璃碎裂，是當地數十年來最強颱風之一。「名號最大聲的，不一定是衝著你來的。」",
+    track:[[1.18,0.92],[0.60,0.98],[-0.06,1.00]], giant:true,
+    danger:{北北基:1,桃竹苗:1,中彰投:2,雲嘉南:2,高屏:3,宜蘭:2,花東:2},
+    rain:{北北基:120,桃竹苗:130,中彰投:150,雲嘉南:180,高屏:250,宜蘭:200,花東:200} },
+  { id:"herb", name:"賀伯", year:1996, label:"強烈颱風", windForecast:53, radius:300, sigma:1.2, alert:"陸上颱風警報",
+    path:"自東北方海面撲來，暴風圈籠罩全台，穿越北部。", remark:"環流完整的大型強颱，全台無一倖免，山區雨量恐極端。",
+    real:"1996年賀伯風災，暴風圈籠罩全台，阿里山單日雨量破紀錄。",
+    lore:"中南部山區土石流肆虐、南投信義鄉重創，全台數十人罹難；「土石流」一詞從此進入台灣人的日常語彙。",
+    track:[[1.05,0.15],[0.60,0.18],[0.25,0.30]], giant:true,
+    danger:{北北基:8,桃竹苗:7,中彰投:7,雲嘉南:5,高屏:4,宜蘭:7,花東:6,南投縣:9},
+    rain:{北北基:500,桃竹苗:500,中彰投:700,雲嘉南:600,高屏:400,宜蘭:600,花東:500} },
+  { id:"toraji", name:"桃芝", year:2001, label:"中度颱風", windForecast:38, radius:180, sigma:1.5, deceptive:"under", alert:"陸上颱風警報",
+    path:"自花蓮登陸，深夜橫越中央山脈。", remark:"強度中等，但深夜登陸加上山區土壤含水已高，土石流風險不可輕忽。",
+    real:"2001年自花蓮登陸的中颱，風不算狂，山卻垮了。",
+    lore:"半夜登陸、豪雨引發全台兩百多處土石流，花蓮光復與南投重創，兩百餘人死亡失蹤——與納莉同年，讓2001成為慘痛的一年。",
+    track:[[1.04,0.48],[0.62,0.44],[0.30,0.38]],
+    danger:{北北基:3,桃竹苗:3,中彰投:6,雲嘉南:5,高屏:4,宜蘭:4,花東:8,南投縣:10},
+    rain:{北北基:200,桃竹苗:250,中彰投:600,雲嘉南:450,高屏:350,宜蘭:300,花東:700} },
+  { id:"mindulle", name:"敏督利", year:2004, label:"中度颱風", windForecast:40, radius:200, sigma:1.7, deceptive:"under", loiter:true, alert:"陸上颱風警報",
+    path:"沿東部海面北上掠過，尾隨的西南氣流才是重點。", remark:"颱風本體影響有限，但離台後西南氣流恐帶來持續性豪雨，中南部嚴防。",
+    real:"2004年颱風本體不強，離台後的「七二水災」才是主角。",
+    lore:"颱風過境災情有限，但引進的旺盛西南氣流在離台後連下三天豪雨，中南部大淹水、山區道路全斷——教科書級的「颱風走了，雨才來」。",
+    track:[[0.95,0.70],[0.62,0.40],[0.55,0.02]],
+    danger:{北北基:4,桃竹苗:4,中彰投:7,雲嘉南:7,高屏:7,宜蘭:5,花東:6,南投縣:8},
+    rain:{北北基:300,桃竹苗:350,中彰投:900,雲嘉南:900,高屏:800,宜蘭:400,花東:500} },
+  { id:"longwang", name:"龍王", year:2005, label:"強烈颱風", windForecast:51, radius:180, sigma:0.9, alert:"陸上颱風警報",
+    path:"高速西進，直撲花蓮，預計快速穿越。", remark:"移速極快、路徑明確，影響時間短但風力強勁，花東首當其衝。",
+    real:"2005年移速飛快的強颱，直撲花蓮。",
+    lore:"以每小時二十多公里高速撲向花蓮，登陸前眼牆重整、強風橫掃花東縱谷；來得快去得也快，是「短促但兇猛」的代表。",
+    track:[[1.08,0.44],[0.60,0.45],[0.20,0.42]],
+    danger:{北北基:4,桃竹苗:4,中彰投:5,雲嘉南:4,高屏:3,宜蘭:5,花東:9},
+    rain:{北北基:250,桃竹苗:250,中彰投:300,雲嘉南:250,高屏:200,宜蘭:400,花東:600} },
+  { id:"saola", name:"蘇拉", year:2012, label:"中度颱風", windForecast:40, radius:250, sigma:2.0, deceptive:"under", loiter:true, loop:true, alert:"陸上颱風警報",
+    path:"在東北角外海緩慢徘徊、路徑不定。", remark:"移速緩慢且路徑詭異，東北部迎風面雨量恐不斷累積。",
+    real:"2012年在東北角外海慢吞吞磨蹭的雨颱。",
+    lore:"路徑詭異、一度打轉倒退嚕，宜蘭山區累積雨量上看1500毫米、蘇澳大淹水；「颱風在門口徘徊不走」讓北部連續數日煎熬警戒。",
+    track:[[1.02,0.30],[0.60,0.14],[0.38,0.06]],
+    danger:{北北基:7,桃竹苗:5,中彰投:4,雲嘉南:3,高屏:3,宜蘭:9,花東:6},
+    rain:{北北基:600,桃竹苗:450,中彰投:350,雲嘉南:300,高屏:250,宜蘭:900,花東:500} },
+  { id:"meranti", name:"莫蘭蒂", year:2016, label:"超級強烈颱風", windForecast:65, radius:220, sigma:1.2, alert:"海上陸上颱風警報",
+    path:"貼著巴士海峽通過，中心不登陸，但極接近恆春半島。", remark:"地表最強等級。雖預測不登陸，但距離極近，南端與高屏恐有毀滅性風雨。",
+    real:"2016年地表最強颱風之一，中心未登陸卻重創恆春與高屏。",
+    lore:"近中心風速直逼理論上限，雖僅掠過巴士海峽，恆春測得破紀錄陣風、高屏大規模停電斷水——證明「沒登陸」不等於「沒事」，與某顆同樣掠過的超強颱恰恰相反。",
+    track:[[1.10,0.80],[0.62,0.84],[0.05,0.80]],
+    danger:{北北基:2,桃竹苗:2,中彰投:3,雲嘉南:4,高屏:7,宜蘭:2,花東:6},
+    rain:{北北基:120,桃竹苗:130,中彰投:200,雲嘉南:300,高屏:500,宜蘭:200,花東:450} },
+  { id:"hinnamnor", name:"軒嵐諾", year:2022, label:"超級強烈颱風", windForecast:55, radius:280, sigma:1.6, deceptive:"over", giant:true, alert:"海上颱風警報",
+    path:"逼近北部海面後預測大迴轉北上，不登陸。", remark:"強度驚人，但多數模式顯示將在東北海面轉向；轉向點若偏西，北部就危險了。",
+    real:"2022年超強颱，在北部海面「甩尾」轉向北上。",
+    lore:"一度是當年地表最強颱風，各國預測模式吵成一團，最後在台灣東北海面大迴轉直奔韓國——本島僅北部與宜蘭外圍降雨，被戲稱「最會轉彎的颱風」。",
+    track:[[1.05,0.35],[0.64,0.18],[0.72,-0.06]],
+    danger:{北北基:3,桃竹苗:2,中彰投:1,雲嘉南:1,高屏:1,宜蘭:4,花東:2},
+    rain:{北北基:250,桃竹苗:180,中彰投:120,雲嘉南:100,高屏:100,宜蘭:350,花東:180} },
+  { id:"krathon", name:"山陀兒", year:2024, label:"強烈颱風", windForecast:51, radius:200, sigma:2.2, loiter:true, alert:"陸上颱風警報",
+    path:"自南方海面龜速北上，預測罕見地直接自高雄登陸。", remark:"移速極慢、路徑罕見，登陸點與時間的不確定性都很大，南部恐長時間受影響。",
+    real:"2024年罕見自高雄登陸、登陸後迅速減弱的怪颱。",
+    lore:"在巴士海峽龜速北上、全台等它等了好幾天，最後從高雄登陸後迅速減弱「躺平」；「等一個走超慢的颱風」讓停班停課決策變成連續劇。",
+    track:[[0.30,1.05],[0.36,0.80],[0.42,0.66]],
+    danger:{北北基:2,桃竹苗:2,中彰投:3,雲嘉南:5,高屏:8,宜蘭:3,花東:5},
+    rain:{北北基:200,桃竹苗:200,中彰投:300,雲嘉南:500,高屏:800,宜蘭:400,花東:600} },
+  { id:"koinu", name:"小犬", year:2023, label:"中度颱風", windForecast:45, radius:150, sigma:1.3, alert:"陸上颱風警報",
+    path:"自東方海面西行，掠過恆春半島與蘭嶼。", remark:"體型不大，但結構紮實；行經台灣尾時，離島與恆春半島風力恐相當極端。",
+    real:"2023年掠過台灣尾的風王，蘭嶼陣風破台灣觀測史紀錄。",
+    lore:"蘭嶼測得每秒95.2公尺、超過17級的驚人陣風，連觀測儀器都被吹壞；恆春半島滿目瘡痍——「小而強」的颱風對特定地區可以極端致命。",
+    track:[[1.08,0.72],[0.60,0.76],[0.15,0.78]],
+    danger:{北北基:2,桃竹苗:2,中彰投:2,雲嘉南:3,高屏:6,宜蘭:3,花東:8},
+    rain:{北北基:150,桃竹苗:150,中彰投:200,雲嘉南:250,高屏:350,宜蘭:250,花東:450} },
+  { id:"kongrey", name:"康芮", year:2024, label:"強烈颱風", windForecast:52, radius:320, sigma:1.1, giant:true, alert:"陸上颱風警報",
+    path:"深秋罕見強颱，自台東登陸、暴風圈籠罩全島。", remark:"環流極為龐大，登陸後全台都在暴風圈內；別因為季節晚了就掉以輕心。",
+    real:"2024年十月底罕見的深秋強颱，暴風圈罩住整個台灣。",
+    lore:"睽違多年再有強颱自台東登陸，暴風圈幾乎籠罩全島、罕見在深秋十月底襲台；「都快十一月了還放颱風假」刷新許多人的季節認知。",
+    track:[[1.08,0.60],[0.60,0.62],[0.20,0.50]],
+    danger:{北北基:5,桃竹苗:4,中彰投:5,雲嘉南:5,高屏:5,宜蘭:6,花東:9},
+    rain:{北北基:400,桃竹苗:300,中彰投:350,雲嘉南:350,高屏:350,宜蘭:600,花東:800} },
+];
+
+// --- 亂數（可注入 seed）---
+function makeRng(seed){ let s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+function gaussian(rng){ let u=0,v=0; while(u===0)u=rng(); while(v===0)v=rng(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+function round1(x){ return Math.round(x*10)/10; }
+
+function regionDanger(t,c){ if(t.danger[c.name]!=null)return t.danger[c.name]; return t.danger[c.region]!=null?t.danger[c.region]:2; }
+function regionRain(t,c){ return t.rain[c.region]!=null?t.rain[c.region]:200; }
+
+// 玩家在第 f 個時點『看到』的預報（含刻意誤導）
+const UNDER_MUL = [0.50, 0.66, 0.86, 1.0]; // 低估型：早期雨量估得偏低，越接近越上修
+function forecastAt(t,c,f){
+  const baseRain=regionRain(t,c), baseWind=t.windForecast;
+  let rain=baseRain, wind=baseWind, note="";
+  if(t.deceptive==="under"){
+    rain=Math.round(baseRain*UNDER_MUL[f]/10)*10;
+    note = f>=2 ? "⚠️ 最新雨量預估大幅上修，慎防致災性降雨與滯留。"
+                : "目前雨量預估中等，但滯留／西南氣流是最大變數。";
+  } else if(t.deceptive==="over"){
+    note = f>=2 ? "🔀 最新路徑明顯偏南，本島恐僅剩外圍風雨。"
+                : "路徑仍指向本島方向，暴風圈龐大，先別鬆懈。";
+  } else {
+    note = f>=2 ? "預報趨於明朗，可依此拍板。" : "預報仍有調整空間，可再觀察。";
+  }
+  const sigmaEff=t.sigma*FRAMES[f].sigmaMul;
+  const confCls = sigmaEff>=1.7?"hi":(sigmaEff>=1.0?"mid":"ok");
+  const confText = sigmaEff>=1.7?"低（易轉向）":(sigmaEff>=1.0?"中":"高（明確）");
+  return { rain, wind, confText, confCls, note, sigmaEff };
+}
+
+// 實際嚴重度 0-10。decideFrame=玩家拍板時點（越早不確定性越大 → 越可能爆冷或摃龜）
+function computeTrueSeverity(t,c,rng,decideFrame){
+  const base=regionDanger(t,c), rainMM=regionRain(t,c);
+  const rainPush=(rainMM/600)*c.flood*1.2;
+  const windPush=(t.windForecast/50)*c.wind*0.8;
+  const landPush=(rainMM/800)*c.land*1.0;
+  let sev=base+rainPush*0.6+windPush*0.6+landPush*0.6-0.9;
+  const sigma=t.sigma*FRAMES[decideFrame].sigmaMul;
+  sev+=gaussian(rng)*sigma;
+  return clamp(sev,0,10);
+}
+
+// 基礎評分（不含時點修正）
+function resolve(t,c,decision,S){
+  const econW=c.econ, JUST=4.5; let dSat=0,dEcon=0;
+  if(decision==="off"){
+    dEcon=-(2+econW*0.9);
+    if(S>=JUST) dSat=4+(S-JUST)*2.2;
+    else dSat=-(2+(JUST-S)*2.0+econW*0.35);
+  }else{
+    if(S<JUST){ dEcon=2+econW*0.35; dSat=2+(JUST-S)*1.6; }
+    else{
+      dSat=-(3+(S-JUST)*3.2);
+      if(S>=7){ dEcon=-((S-6.5)*(2+econW*0.5)); } else { dEcon=0.5; }
+    }
+  }
+  return { dSat, dEcon, outcome:classify(decision,S,JUST), S };
+}
+
+// 時點修正：越早拍板越像賭注（對加分、錯重罰）；越晚才放假有「太晚宣布」民怨
+function timingAdjust(base, decision, outcome, timing){
+  let dSat=base.dSat, dEcon=base.dEcon;
+  if(decision==="off"){
+    if(outcome==="off_right"){
+      if(timing==="early") dSat+=0.8;
+      else if(timing==="late") dSat-=4.2;     // 當天清晨才放，通勤族／家長已在路上，民怨強烈
+    }else{ // off_wrong
+      if(timing==="early"){ dSat-=1.8; dEcon*=1.12; }
+      else if(timing==="late") dSat-=0.4;
+    }
+  }else{ // work
+    if(outcome==="work_right"){
+      if(timing==="early") dSat+=0.6;
+    }else{ // work_wrong / work_disaster
+      if(timing==="early") dSat-=1.2;
+      else if(timing==="late") dSat+=0.4;
+    }
+  }
+  return { dSat, dEcon };
+}
+
+const SCALE=0.62; // 任期 12 場，單場增減縮小避免飽和
+function resolveTimed(t,c,decision,S,decideFrame){
+  const base=resolve(t,c,decision,S);
+  const adj=timingAdjust(base, decision, base.outcome, FRAMES[decideFrame].timing);
+  return { dSat:round1(adj.dSat*SCALE), dEcon:round1(adj.dEcon*SCALE), outcome:base.outcome, S:round1(S) };
+}
+
+function classify(d,S,J){ if(d==="off")return S>=J?"off_right":"off_wrong"; return S<J?"work_right":(S>=7?"work_disaster":"work_wrong"); }
+
+
+/* =========================================================
+   反應內容（新聞跑馬燈 + 網友留言）
+   ========================================================= */
+const NAMES=["阿明","小美","chunchun","王大同","下班喝一杯","南部小孩","itch路人","蔡桑","豆花王","隔壁老李","台北蝸牛","不想上班der","雨衣濕透","柑仔店阿嬤"];
+const REACT={
+  off_right:{news:c=>`【市政】${c}宣布停班停課，強風豪雨釀路樹傾倒逾百處，市府超前部署獲肯定`,
+    cmts:["市長英明！這種天氣誰敢出門 🙏","還好有放假，外面樹都被吹倒了…","感謝市長讓大家平安在家 ❤️","這次放得超有道理，給推 👍"]},
+  off_wrong:{news:c=>`【爭議】${c}颱風假挨批：風雨未如預期，商圈叫苦、業績掛零`,
+    cmts:["又放假！我老闆在哭了 😭 #颱風假之亂","太陽這麼大是在放什麼假啦 🌞","說好的颱風呢？損失誰要賠 💸","放假放好放滿，經濟都被放垮了","小朋友開心，做生意的想哭 😮‍💨"]},
+  work_right:{news:c=>`【市政】${c}照常上班上課，風雨影響輕微，市府決策獲讚務實`,
+    cmts:["英明！這種毛毛雨也要放假？","市長務實，該上班就上班 👍","還好沒放假，不然又被說亂放","拚經濟的市長，給讚 💪"]},
+  work_wrong:{news:c=>`【民怨】${c}未放假惹議，市區多處積水、通勤受阻`,
+    cmts:["這也叫上班？路上都積水了 🌊","市長你自己出來走走看啊","通勤淋成落湯雞，謝謝市長喔 🙄","早上差點滑倒，這樣不用放假？"]},
+  work_disaster:{news:c=>`【重大】${c}災情頻傳，未停班停課引爆強烈民怨，議會要求檢討`,
+    cmts:["市長下台！這種天氣要人怎麼上班 😡","淹到膝蓋還要打卡？太誇張","出事了誰負責？#市長請辭","早該放假的，鬧出事情誰扛得起 💢"]},
+};
+
+/* =========================================================
+   任期狀態
+   ========================================================= */
+const S={city:null,cityKey:null,term:0,total:12,sat:50,econ:50,queue:[],cur:null,frameIdx:0,curCode:"",codes:[],seed:0,log:[]};
+let audioOn=true, ctx=null, windGain=null, windNode=null, booted=false;
+
+/* ---------- 音效（延遲初始化，包 try/catch，itch iframe 安全）---------- */
+function initAudio(){
+  if(ctx) return;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    ctx=new AC();
+    const buf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*0.4;
+    windNode=ctx.createBufferSource(); windNode.buffer=buf; windNode.loop=true;
+    const lp=ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=520;
+    windGain=ctx.createGain(); windGain.gain.value=0;
+    windNode.connect(lp); lp.connect(windGain); windGain.connect(ctx.destination); windNode.start();
+  }catch(e){}
+}
+function setWind(level){ // 0..1
+  if(!ctx||!windGain) return;
+  try{ windGain.gain.setTargetAtTime(audioOn?level*0.16:0, ctx.currentTime, .5); }catch(e){}
+}
+function chime(up){
+  if(!ctx||!audioOn) return;
+  try{
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type="sine"; o.frequency.value=up?660:300;
+    o.frequency.exponentialRampToValueAtTime(up?880:200,ctx.currentTime+.18);
+    g.gain.value=.0001; g.gain.exponentialRampToValueAtTime(.14,ctx.currentTime+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.5);
+    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+.55);
+  }catch(e){}
+}
+function toggleMute(){ audioOn=!audioOn; document.querySelectorAll('#muteBtn,#muteBtn2').forEach(b=>b.textContent=audioOn?"♪":"♪̶"); if(!audioOn)setWind(0); else setWind(currentWind); saveBest(); }
+let currentWind=0;
+
+/* ---------- 存檔（localStorage 失敗→sessionStorage，itch iframe 沙盒相容）---------- */
+const KEY="typhoon_mayor_best_v1";
+function saveBest(){
+  try{
+    const cur=loadBest()||{};
+    const payload={best:cur.best||null,audioOn:audioOn};
+    if(window.__lastEnd){
+      const e=window.__lastEnd;
+      if(!cur.best || (e.sat+e.econ)>(cur.best.sat+cur.best.econ)) payload.best=e; else payload.best=cur.best;
+    }
+    const str=JSON.stringify(payload);
+    try{localStorage.setItem(KEY,str);}catch(e){ try{sessionStorage.setItem(KEY,str);}catch(e2){} }
+  }catch(e){}
+}
+function loadBest(){
+  try{ const s=localStorage.getItem(KEY)||sessionStorage.getItem(KEY); return s?JSON.parse(s):null; }catch(e){ return null; }
+}
+
+/* =========================================================
+   畫面切換
+   ========================================================= */
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); document.getElementById(id).classList.add('on'); window.scrollTo(0,0); }
+
+/* ---------- 主選單 ---------- */
+function refreshBestLine(){
+  const b=loadBest();
+  const el=document.getElementById('bestLine');
+  if(b&&b.best){ el.innerHTML=`最佳任期紀錄　<span class="mono" style="color:var(--sat)">滿意 ${b.best.sat}</span> · <span class="mono" style="color:var(--econ)">經濟 ${b.best.econ}</span>　—　${b.best.rank}`; }
+  else el.textContent="";
+  if(b&&typeof b.audioOn==="boolean"){ audioOn=b.audioOn; document.querySelectorAll('#muteBtn,#muteBtn2').forEach(x=>x.textContent=audioOn?"♪":"♪̶"); }
+}
+
+/* ---------- 縣市選擇 ---------- */
+function buildCityGrid(){
+  const g=document.getElementById('cityGrid'); g.innerHTML="";
+  CITY_ORDER.forEach(k=>{
+    const c=CITIES[k];
+    const el=document.createElement('button'); el.className="city"; el.dataset.k=k;
+    el.innerHTML=`<div class="cn">${c.name}</div><div class="tag">${c.region}</div>
+      <div class="risk">
+        <span class="f" style="opacity:${.2+c.flood*.8}"></span>
+        <span class="w" style="opacity:${.2+c.wind*.8}"></span>
+        <span class="l" style="opacity:${.2+c.land*.8}"></span>
+      </div>`;
+    el.onclick=()=>selectCity(k,el);
+    g.appendChild(el);
+  });
+}
+function selectCity(k,el){
+  document.querySelectorAll('.city').forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel');
+  S.cityKey=k; S.city=CITIES[k];
+  const d=document.getElementById('cityDetail'); d.style.display="block";
+  d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;">
+     <b style="font-size:18px">${S.city.name}</b>
+     <span class="mono small muted">經濟權重 ${S.city.econ}/10　·　${S.city.region}</span></div>
+    <p class="small muted" style="margin-top:8px;">${S.city.blurb}</p>
+    <div class="small" style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;">
+      <span><span style="color:var(--blue)">▍</span>淹水 ${Math.round(S.city.flood*10)}</span>
+      <span><span style="color:var(--amber)">▍</span>強風 ${Math.round(S.city.wind*10)}</span>
+      <span><span style="color:var(--red)">▍</span>土石流 ${Math.round(S.city.land*10)}</span>
+    </div>`;
+  document.getElementById('cityGo').disabled=false;
+}
+
+/* ---------- 任期開始 ---------- */
+function startTerm(){
+  S.term=0; S.sat=50; S.econ=50; S.log=[];
+  S.seed=(Date.now()^(Math.random()*1e9))>>>0;
+  const rng=makeRng(S.seed);
+  S.queue=[...TYPHOONS].map(t=>({t,r:rng()})).sort((a,b)=>a.r-b.r).slice(0,S.total).map(x=>x.t);
+  document.getElementById('dashCity').textContent=S.city.name;
+  nextTyphoon();
+}
+function nextTyphoon(){
+  if(S.term>=S.total){ endTerm(); return; }
+  const sc=stormCode(S.term);
+  S.cur=S.queue[S.term]; S.frameIdx=0; S.curCode=sc.text; S.curYear=sc.year;
+  renderDash();
+  show('s-dash');
+}
+
+/* ---------- 儀表板：每場一次（固定部分）---------- */
+function renderDash(){
+  const t=S.cur, c=S.city;
+  document.getElementById('termNum').textContent=S.term+1;
+  document.getElementById('yearNum').textContent=S.curYear;
+  updateHUD(false);
+  document.getElementById('stormName').innerHTML=`颱風 ${S.curCode}<small>${t.label}</small>`;
+  const chip=document.getElementById('alertChip');
+  const land=t.alert.indexOf("陸上")>=0;
+  chip.className="alert-chip "+(land?"land":"sea"); chip.textContent=t.alert;
+  renderFrame();
+  startRadarLoop();
+}
+/* ---------- 隨時間點更新（會變的部分）---------- */
+function renderFrame(){
+  const t=S.cur, c=S.city, f=S.frameIdx, F=FRAMES[f];
+  const fc=forecastAt(t,c,f);
+  currentWind=clamp(fc.wind/70,.12,1); setWind(currentWind);
+  // 時鐘 + 死線標籤
+  document.getElementById('clockLabel').textContent=F.label+`（${F.key}）`;
+  const dtag=document.getElementById('deadlineTag');
+  if(F.deadline){ dtag.style.display="inline-block"; dtag.textContent=`⏰ ${F.deadline}停班停課宣布死線`; }
+  else dtag.style.display="none";
+  // 時間軸
+  const fs=document.getElementById('frameStrip');
+  fs.innerHTML=FRAMES.map((fr,i)=>{
+    const cls=i<f?"done":(i===f?"cur":"future");
+    return `<div class="fp ${cls}"><div class="c">${fr.key}</div><div class="n">${fr.label}</div></div>`;
+  }).join("");
+  // 預報數據（隨時間點變化：雨量校正、信心收斂）
+  const sl=document.getElementById('statList');
+  const wCls=fc.wind>=50?"hi":(fc.wind>=40?"mid":"ok");
+  const rCls=fc.rain>=800?"hi":(fc.rain>=400?"mid":"ok");
+  sl.innerHTML=`
+    <div class="stat"><span class="k">近中心最大風速</span><span class="v ${wCls}">${fc.wind} m/s</span></div>
+    <div class="stat"><span class="k">預測累積雨量（貴轄區）</span><span class="v ${rCls}">${fc.rain} mm</span></div>
+    <div class="stat"><span class="k">七級風暴風半徑</span><span class="v">${t.radius} km</span></div>
+    <div class="stat"><span class="k">預測路徑</span><span class="v" style="font-size:12.5px;max-width:190px;">${t.path}</span></div>
+    <div class="stat"><span class="k">路徑預報信心</span><span class="v ${fc.confCls}">${fc.confText}</span></div>`;
+  document.getElementById('remark').innerHTML=`<b>預報員研判：</b>${t.remark}`;
+  document.getElementById('fcNote').innerHTML=`<b class="mono" style="color:var(--amber)">${F.label}最新研判 ▸</b> ${fc.note}<br><span class="dim small">${F.hint}</span>`;
+  // 觀望按鈕：最後一個時間點不能再等
+  const wb=document.getElementById('waitBtn');
+  if(f>=FRAMES.length-1){ wb.disabled=true; wb.textContent="已是當天清晨（最後一份預報）· 請做出決定"; }
+  else{ wb.disabled=false; wb.textContent=`繼續觀望 · 等下一份預報（→ ${FRAMES[f+1].label}）`; }
+  drawForecast(t,c,f,0);
+}
+function updateHUD(anim){
+  document.getElementById('satVal').textContent=Math.round(S.sat);
+  document.getElementById('econVal').textContent=Math.round(S.econ);
+  document.getElementById('satBar').style.width=clamp(S.sat,0,100)+"%";
+  document.getElementById('econBar').style.width=clamp(S.econ,0,100)+"%";
+}
+
+/* ---------- 繼續觀望：推進到下一個時間點 ---------- */
+function advanceFrame(){
+  if(S.frameIdx>=FRAMES.length-1) return;
+  S.frameIdx++;
+  renderFrame();
+  chime(false);
+}
+
+/* ---------- 決策 → 結算（含拍板時點）---------- */
+function decide(decision){
+  const t=S.cur,c=S.city,f=S.frameIdx;
+  const rng=makeRng((S.seed^(t.id.length*131)^(S.term*977)^(f*61)^(decision==="off"?7:13))>>>0);
+  const trueSev=computeTrueSeverity(t,c,rng,f);
+  const r=resolveTimed(t,c,decision,trueSev,f);
+  S.sat=clamp(S.sat+r.dSat,0,100);
+  S.econ=clamp(S.econ+r.dEcon,0,100);
+  S.log.push({name:t.name,year:t.year,code:`第${S.curYear}年${S.curCode}`,decision,outcome:r.outcome,S:r.S,dSat:r.dSat,dEcon:r.dEcon,timing:FRAMES[f].timing,frameLabel:FRAMES[f].label});
+  showReveal(t,c,decision,r);
+}
+function showReveal(t,c,decision,r){
+  show('s-reveal'); stopRadarLoop();
+  document.getElementById('revealTerm').textContent=`颱風 ${S.term+1} / ${S.total}`;
+  document.getElementById('revealCode').textContent=`第${S.curYear}年 ${S.curCode}颱風 · ${c.name}轄區`;
+  const v=document.getElementById('verdict'), vs=document.getElementById('verdictSub');
+  const map={
+    off_right:{cls:"good",t:"放對了！",s:"風雨如預期般兇猛，民眾慶幸能安全待在家。經濟雖有損失，但這一天你守住了人民。"},
+    off_wrong:{cls:"meh",t:"放錯假了…",s:"結果風平浪靜、太陽露臉。「颱風假之亂」的罵聲湧來，店家業績掛零，經濟也白白蒸發。"},
+    work_right:{cls:"good",t:"英明的決定！",s:"影響輕微，城市照常運轉。民眾讚你務實不亂放假，經濟穩穩向前。"},
+    work_wrong:{cls:"meh",t:"有點勉強…",s:"風雨其實不小，通勤積水、民眾淋成落湯雞。雖無大礙，但「這也要上班？」的怨言不少。"},
+    work_disaster:{cls:"bad",t:"出大事了！",s:"災情慘重，卻要人們冒險上班上課。民怨沸騰、議會開砲，還付出了慘痛的災損代價。"},
+  }[r.outcome];
+  v.className="verdict "+map.cls; v.textContent=map.t; vs.textContent=map.s;
+  // severity meter
+  const sf=document.getElementById('sevFill'); sf.style.width="0%";
+  setTimeout(()=>{ sf.style.width=clamp(r.S/10*100,3,100)+"%"; },60);
+  // 檔案解密：揭露真實身分
+  document.getElementById('dcName').innerHTML=`${t.name}<small>${t.year} · ${t.label}</small>`;
+  document.getElementById('dcReal').textContent=t.real||"";
+  document.getElementById('dcLore').textContent=t.lore||"";
+  // deltas
+  const ds=document.getElementById('dSat'), de=document.getElementById('dEcon');
+  ds.textContent=(r.dSat>=0?"+":"")+r.dSat; ds.className="v "+(r.dSat>=0?"up":"down");
+  de.textContent=(r.dEcon>=0?"+":"")+r.dEcon; de.className="v "+(r.dEcon>=0?"up":"down");
+  // news + comments
+  document.getElementById('headline').textContent=REACT[r.outcome].news(c.name);
+  const pool=[...REACT[r.outcome].cmts].sort(()=>Math.random()-.5).slice(0,3);
+  const cm=document.getElementById('comments'); cm.innerHTML="";
+  pool.forEach(txt=>{
+    const nm=NAMES[Math.floor(Math.random()*NAMES.length)];
+    const el=document.createElement('div'); el.className="cmt";
+    el.innerHTML=`<div class="ava">${nm[0]}</div><div class="txt"><b>${nm}</b>${txt}</div>`;
+    cm.appendChild(el);
+  });
+  // rain fx + audio
+  const sev=r.S;
+  setWind(clamp(sev/10,.05,1));
+  chime(r.dSat>=0);
+  runRain(sev);
+  document.getElementById('nextBtn').textContent = (S.term+1>=S.total)?"任期結算 →":"下一個颱風 →";
+}
+function afterReveal(){
+  stopRain(); setWind(0);
+  S.term++;
+  nextTyphoon();
+}
+
+/* ---------- 結局 ---------- */
+function endingFor(sat,econ){
+  if(sat>=85&&econ>=56) return {rank:"傳奇市長",cls:"var(--radar)",desc:"民心所向、政績斐然。你在風雨中做出的每個判斷，都成了教科書等級的案例。跨黨派高票連任，任期還沒結束就有人喊你選總統。"};
+  if(sat>=79) return {rank:"人民的市長",cls:"var(--sat)",desc:"民眾愛戴你到不行——你總是把安全擺第一。只是市庫有點吃緊，議員念了你幾句，但選票不會騙人：連任成功。"};
+  if(sat>=64&&econ>=54) return {rank:"穩健連任",cls:"var(--sat)",desc:"民心與經濟都顧到了七八分，沒有大災難也沒有大爭議。四平八穩，順利連任。這座城市在你手上很安心。"};
+  if(sat>=56) return {rank:"驚險過關",cls:"var(--amber)",desc:"幾次判斷踩在鋼索上，但你撐住了民心的底線，勉強連任。下個任期，市民會盯得更緊。"};
+  if(sat>=44&&econ>=62) return {rank:"拚了經濟，輸了民心",cls:"var(--amber)",desc:"帳面數字很漂亮，但你太常叫大家冒雨上班。經濟派挺你，庶民卻不買單——連任之路以些微差距落敗。"};
+  if(sat>=44) return {rank:"黯然下台",cls:"var(--red)",desc:"風評兩極，關鍵時刻的決定沒能贏得信任。選舉夜，你在辦公室看著開票數字一路落後，默默收拾東西。"};
+  return {rank:"民怨罷免",cls:"var(--red)",desc:"一次錯誤的判斷可以原諒，但你錯了太多次。連署書堆滿市府門口，罷免票通過。這座城市，決定換人守護。"};
+}
+function endTerm(){
+  const e=endingFor(S.sat,S.econ);
+  document.getElementById('rankTitle').textContent=e.rank;
+  document.getElementById('rankTitle').style.color=e.cls;
+  document.getElementById('endSat').textContent=Math.round(S.sat);
+  document.getElementById('endEcon').textContent=Math.round(S.econ);
+  document.getElementById('endDesc').textContent=e.desc;
+  // log
+  const lb=document.getElementById('logBox');
+  const dtxt={off:"放假",work:"照常"};
+  const otxt={off_right:"✅ 放對",off_wrong:"⚠️ 放錯",work_right:"✅ 英明",work_wrong:"⚠️ 勉強",work_disaster:"❌ 災難"};
+  lb.innerHTML=`<div class="eyebrow" style="margin-bottom:10px;">任內決策紀錄</div>`+
+    S.log.map(l=>`<div class="stat" style="border-bottom:1px dashed #17293a;">
+      <span class="k">${l.name}<span class="mono dim" style="font-size:11px"> ${l.year} · 代號${l.code}</span> — ${dtxt[l.decision]}<span class="dim" style="font-size:11px">（${l.frameLabel}拍板）</span></span>
+      <span class="v" style="font-size:13px;">${otxt[l.outcome]}　<span style="color:${l.dSat>=0?'var(--sat)':'var(--red)'}">${l.dSat>=0?'+':''}${l.dSat}</span> <span class="dim">滿</span> · <span style="color:${l.dEcon>=0?'var(--econ)':'var(--red)'}">${l.dEcon>=0?'+':''}${l.dEcon}</span> <span class="dim">經</span></span>
+    </div>`).join("");
+  window.__lastEnd={sat:Math.round(S.sat),econ:Math.round(S.econ),rank:e.rank};
+  saveBest();
+  setWind(0); stopRain();
+  show('s-end');
+}
+
+/* =========================================================
+   雷達 canvas
+   ========================================================= */
+let radarT=0, radarRAF=null;
+/* 路徑預報圖：颱風軌跡（二次貝茲）+ 隨時間收斂的誤差錐 */
+function trackPoint(t,u){ // u:0..1 沿軌跡（quadratic bezier through 3 control points）
+  const [p0,p1,p2]=t.track;
+  const a=1-u;
+  return [ a*a*p0[0]+2*a*u*p1[0]+u*u*p2[0], a*a*p0[1]+2*a*u*p1[1]+u*u*p2[1] ];
+}
+function trackTangent(t,u){
+  const [p0,p1,p2]=t.track;
+  const dx=2*(1-u)*(p1[0]-p0[0])+2*u*(p2[0]-p1[0]);
+  const dy=2*(1-u)*(p1[1]-p0[1])+2*u*(p2[1]-p1[1]);
+  const L=Math.hypot(dx,dy)||1;
+  return [dx/L,dy/L];
+}
+function drawForecast(t,c,f,anim){
+  const cv=document.getElementById('radar'); if(!cv) return;
+  const g=cv.getContext('2d'); const W=cv.width,H=cv.height;
+  const px=(p)=>[p[0]*W,p[1]*H];
+  g.clearRect(0,0,W,H);
+  // 經緯格線
+  g.strokeStyle="rgba(53,224,161,.10)"; g.lineWidth=1;
+  for(let i=1;i<8;i++){ g.beginPath(); g.moveTo(W*i/8,0); g.lineTo(W*i/8,H); g.stroke();
+    g.beginPath(); g.moveTo(0,H*i/8); g.lineTo(W,H*i/8); g.stroke(); }
+  // 台灣本島（正規化座標）
+  const TW=[[.455,.08],[.50,.10],[.53,.20],[.535,.33],[.545,.46],[.52,.60],[.475,.72],[.44,.78],[.415,.74],[.385,.62],[.36,.50],[.365,.36],[.39,.22],[.42,.12]];
+  g.beginPath(); TW.forEach((p,i)=>{const q=px(p); i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]);}); g.closePath();
+  g.fillStyle="rgba(53,224,161,.10)"; g.strokeStyle="rgba(53,224,161,.5)"; g.lineWidth=2.2; g.fill(); g.stroke();
+  const F=FRAMES[f];
+  const adv=F.adv;                     // 颱風目前在軌跡上的進度
+  const [sx0,sy0]=trackPoint(t,adv), sx=sx0*W, sy=sy0*H;
+  const sigmaEff=t.sigma*F.coneMul;    // 錐寬用 coneMul 表現
+  // --- 誤差錐：從目前位置沿「未來」軌跡，越遠越寬 ---
+  const STEPS=26;
+  const left=[],right=[];
+  for(let k=0;k<=STEPS;k++){
+    const u=adv+(1-adv)*(k/STEPS);
+    const [x,y]=trackPoint(t,u), [tx,ty]=trackTangent(t,u);
+    const nx=-ty, ny=tx;                                // 法向量
+    const wgt=(k/STEPS);                                // 未來越遠越寬
+    const wpx=(0.012+wgt*0.10*sigmaEff)*W;              // 錐半寬（像素）
+    left.push([x*W+nx*wpx, y*H+ny*wpx]);
+    right.push([x*W-nx*wpx, y*H-ny*wpx]);
+  }
+  g.beginPath();
+  left.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));
+  right.reverse().forEach(p=>g.lineTo(p[0],p[1]));
+  g.closePath();
+  g.fillStyle="rgba(255,179,64,.10)"; g.strokeStyle="rgba(255,179,64,.35)"; g.lineWidth=1.2;
+  g.fill(); g.stroke();
+  // 預測中心線（虛線）＋預測時點標記
+  g.setLineDash([7,7]); g.strokeStyle="rgba(255,179,64,.75)"; g.lineWidth=2;
+  g.beginPath();
+  for(let k=0;k<=STEPS;k++){ const u=adv+(1-adv)*(k/STEPS); const [x,y]=trackPoint(t,u); k?g.lineTo(x*W,y*H):g.moveTo(x*W,y*H); }
+  g.stroke(); g.setLineDash([]);
+  for(const mu of [0.35,0.7,1.0]){
+    const u=adv+(1-adv)*mu; const [x,y]=trackPoint(t,u);
+    g.beginPath(); g.arc(x*W,y*H,4,0,Math.PI*2); g.fillStyle="rgba(255,179,64,.9)"; g.fill();
+  }
+  // 已走過的路徑（實線、淡）
+  g.strokeStyle="rgba(170,190,205,.4)"; g.lineWidth=2;
+  g.beginPath();
+  for(let k=0;k<=14;k++){ const u=adv*(k/14); const [x,y]=trackPoint(t,u); k?g.lineTo(x*W,y*H):g.moveTo(x*W,y*H); }
+  g.stroke();
+  // 貴轄區
+  const cxp=c.mx*W, cyp=c.my*H;
+  const pulse=3+Math.sin(anim*2.2)*1.6;
+  g.beginPath(); g.arc(cxp,cyp,5.5,0,Math.PI*2); g.fillStyle="#eafff6"; g.fill();
+  g.strokeStyle="#35e0a1"; g.lineWidth=2; g.beginPath(); g.arc(cxp,cyp,9+pulse,0,Math.PI*2); g.stroke();
+  g.font="700 22px system-ui"; g.fillStyle="#dfeaf2"; g.textAlign="center"; g.fillText(c.name,cxp,cyp-20);
+  // 颱風本體：暴風圈 + 旋轉眼
+  const sr=W*clamp(t.radius/900,0.10,0.42);
+  const grd=g.createRadialGradient(sx,sy,sr*0.15,sx,sy,sr);
+  grd.addColorStop(0,"rgba(255,96,96,.28)"); grd.addColorStop(1,"rgba(255,96,96,.03)");
+  g.beginPath(); g.arc(sx,sy,sr,0,Math.PI*2); g.fillStyle=grd; g.fill();
+  g.strokeStyle="rgba(255,96,96,.5)"; g.lineWidth=1.5; g.stroke();
+  g.save(); g.translate(sx,sy); g.rotate(-anim*1.4);
+  g.strokeStyle="rgba(255,255,255,.85)"; g.lineWidth=3;
+  for(let a=0;a<2;a++){ g.rotate(Math.PI); g.beginPath();
+    for(let k=0;k<40;k++){ const r=k/40*sr*0.55, an=k/40*3.2; const x=Math.cos(an)*r,y=Math.sin(an)*r; k?g.lineTo(x,y):g.moveTo(x,y);} g.stroke(); }
+  g.beginPath(); g.arc(0,0,3.5,0,Math.PI*2); g.fillStyle="#fff"; g.fill();
+  g.restore();
+  // 特性標籤（滯留/打轉/巨型…）
+  let flag = t.loop?"⟳ 路徑可能打轉":(t.loiter?"⏳ 移速緩慢·恐滯留":(t.erratic?"⚠ 路徑極不穩定":(t.giant?"◎ 巨型暴風圈":"")));
+  if(flag){ g.font="600 17px system-ui"; g.textAlign="left"; g.fillStyle="rgba(255,179,64,.9)"; g.fillText(flag, 12, H-14); }
+  // 時點浮水印
+  g.font="700 16px ui-monospace,monospace"; g.textAlign="right"; g.fillStyle="rgba(137,160,178,.8)";
+  g.fillText(F.key+" 預報", W-12, 24);
+}
+function startRadarLoop(){ stopRadarLoop(); const loop=()=>{ radarT+=0.03; drawForecast(S.cur,S.city,S.frameIdx,radarT); radarRAF=requestAnimationFrame(loop); }; loop(); }
+function stopRadarLoop(){ if(radarRAF)cancelAnimationFrame(radarRAF); radarRAF=null; }
+
+/* =========================================================
+   雨 fx (fullscreen)
+   ========================================================= */
+let rainRAF=null, drops=[];
+function runRain(sev){
+  const cv=document.getElementById('rain'); const ctx3=cv.getContext('2d');
+  cv.width=innerWidth; cv.height=innerHeight; cv.style.opacity=clamp(sev/10,0.1,0.9);
+  const count=Math.floor(30+sev*38);
+  drops=[]; for(let i=0;i<count;i++)drops.push({x:Math.random()*cv.width,y:Math.random()*cv.height,l:8+Math.random()*14,s:6+sev*1.6+Math.random()*6});
+  const wind=2+sev*0.7;
+  const draw=()=>{
+    ctx3.clearRect(0,0,cv.width,cv.height);
+    ctx3.strokeStyle=`rgba(140,190,220,${clamp(0.18+sev*0.05,.2,.7)})`; ctx3.lineWidth=1.3;
+    drops.forEach(d=>{ ctx3.beginPath(); ctx3.moveTo(d.x,d.y); ctx3.lineTo(d.x-wind,d.y+d.l); ctx3.stroke();
+      d.y+=d.s; d.x+=wind*0.3; if(d.y>cv.height){d.y=-10;d.x=Math.random()*cv.width;} });
+    rainRAF=requestAnimationFrame(draw);
+  }; draw();
+}
+function stopRain(){ if(rainRAF)cancelAnimationFrame(rainRAF); rainRAF=null; const cv=document.getElementById('rain'); if(cv){cv.style.opacity=0; setTimeout(()=>{const c=cv.getContext('2d');c&&c.clearRect(0,0,cv.width,cv.height);},600);} }
+
+/* =========================================================
+   綁定
+   ========================================================= */
+function bind(){
+  const firstGesture=()=>{ initAudio(); if(ctx&&ctx.state==="suspended"){try{ctx.resume();}catch(e){}} };
+  document.body.addEventListener('pointerdown',firstGesture,{once:true});
+
+  document.getElementById('startBtn').onclick=()=>{ initAudio(); buildCityGrid(); document.getElementById('cityGo').disabled=true; document.getElementById('cityDetail').style.display="none"; show('s-city'); };
+  document.getElementById('howBtn').onclick=()=>{ const b=document.getElementById('howBox'); b.style.display=b.style.display==="none"?"block":"none"; };
+  document.getElementById('howClose').onclick=()=>{ document.getElementById('howBox').style.display="none"; };
+  document.getElementById('cityBack').onclick=()=>show('s-title');
+  document.getElementById('cityGo').onclick=()=>{ if(S.city) startTerm(); };
+  document.getElementById('waitBtn').onclick=advanceFrame;
+  document.getElementById('btnOff').onclick=()=>decide("off");
+  document.getElementById('btnWork').onclick=()=>decide("work");
+  document.getElementById('btnOff').onkeydown=e=>{if(e.key==="Enter"||e.key===" ")decide("off");};
+  document.getElementById('btnWork').onkeydown=e=>{if(e.key==="Enter"||e.key===" ")decide("work");};
+  document.getElementById('nextBtn').onclick=afterReveal;
+  document.getElementById('againBtn').onclick=()=>{ document.getElementById('cityGo').disabled=false; startTerm(); };
+  document.getElementById('menuBtn').onclick=()=>{ setWind(0); refreshBestLine(); show('s-title'); };
+  document.querySelectorAll('#muteBtn,#muteBtn2').forEach(b=>b.onclick=toggleMute);
+  window.addEventListener('resize',()=>{ if(rainRAF){const cv=document.getElementById('rain');cv.width=innerWidth;cv.height=innerHeight;} });
+}
+
+/* ---------- boot guard（itch iframe / in-app 預覽相容）---------- */
+function boot(){ if(booted)return; booted=true; window.__booted=true; bind(); refreshBestLine(); }
+if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",boot); } else { boot(); }
+setTimeout(()=>{ if(!window.__booted) boot(); }, 350);
+</script>
+</body>
+</html>
