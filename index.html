@@ -122,21 +122,19 @@
   .remark b{color:var(--radar);}
 
   .decide{margin-top:16px;}
-  .decide-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .decide-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
   @media(max-width:520px){ .decide-row{grid-template-columns:1fr;} }
-  .decide-btn{cursor:pointer; border-radius:14px; padding:16px; border:1.5px solid var(--line); text-align:center;
+  .decide-btn{cursor:pointer; border-radius:14px; padding:15px 12px; border:1.5px solid var(--line); text-align:center;
     background:var(--panel); transition:.16s ease;}
   .decide-btn:hover{transform:translateY(-2px);}
   .decide-btn.off:hover{border-color:var(--amber); box-shadow:0 10px 28px -14px rgba(255,179,64,.7);}
   .decide-btn.work:hover{border-color:var(--blue); box-shadow:0 10px 28px -14px rgba(74,168,255,.7);}
-  .decide-btn .t{font-weight:900; font-size:18px;}
-  .decide-btn.off .t{color:var(--amber);} .decide-btn.work .t{color:var(--blue);}
-  .decide-btn .d{font-size:12px; color:var(--muted); margin-top:3px;}
-  .wait-row{display:flex; justify-content:center; margin-top:12px;}
-  .wait-btn{font-family:var(--mono); font-size:12.5px; color:var(--muted); background:transparent;
-    border:1px dashed var(--line); border-radius:20px; padding:8px 16px; cursor:pointer; transition:.15s;}
-  .wait-btn:hover{color:var(--radar); border-color:var(--radar);}
-  .wait-btn:disabled{opacity:.4; cursor:default; border-style:solid;}
+  .decide-btn.wait:hover{border-color:var(--radar); box-shadow:0 10px 28px -14px rgba(53,224,161,.6);}
+  .decide-btn .t{font-weight:900; font-size:17px;}
+  .decide-btn.off .t{color:var(--amber);} .decide-btn.work .t{color:var(--blue);} .decide-btn.wait .t{color:var(--radar);}
+  .decide-btn .d{font-size:11.5px; color:var(--muted); margin-top:3px; line-height:1.4;}
+  .decide-btn.wait{border-style:dashed; background:linear-gradient(180deg,rgba(53,224,161,.06),transparent);}
+  .decide-btn.is-disabled{opacity:.38; cursor:default; pointer-events:none; border-style:solid; transform:none;}
   .updated-tag{color:var(--radar); font-family:var(--mono); font-size:11px; letter-spacing:.08em;}
 
   /* ===== Decision timeline ===== */
@@ -312,13 +310,14 @@
           <div class="t">宣布停班停課</div>
           <div class="d">放颱風假 · 保平安、損經濟</div>
         </div>
+        <div class="decide-btn wait" id="waitBtn" role="button" tabindex="0">
+          <div class="t">繼續觀望</div>
+          <div class="d">等下一份預報</div>
+        </div>
         <div class="decide-btn work" id="btnWork" role="button" tabindex="0">
           <div class="t">拍板照常上班</div>
           <div class="d">拚經濟 · 賭它不會太嚴重</div>
         </div>
-      </div>
-      <div class="wait-row">
-        <button class="wait-btn" id="waitBtn">繼續觀望 · 等下一份預報 →</button>
       </div>
     </div>
   </section>
@@ -813,9 +812,9 @@ function renderFrame(){
   document.getElementById('remark').innerHTML=`<b>預報員研判：</b>${t.remark}`;
   document.getElementById('fcNote').innerHTML=`<b class="mono" style="color:var(--amber)">${F.label}最新研判 ▸</b> ${fc.note}<br><span class="dim small">${F.hint}</span>`;
   // 觀望按鈕：最後一個時間點不能再等
-  const wb=document.getElementById('waitBtn');
-  if(f>=FRAMES.length-1){ wb.disabled=true; wb.textContent="已是當天清晨（最後一份預報）· 請做出決定"; }
-  else{ wb.disabled=false; wb.textContent=`繼續觀望 · 等下一份預報（→ ${FRAMES[f+1].label}）`; }
+  const wb=document.getElementById('waitBtn'), wt=wb.querySelector('.t'), wd=wb.querySelector('.d');
+  if(f>=FRAMES.length-1){ wb.classList.add('is-disabled'); wt.textContent="無法再等"; wd.textContent="已是最後預報，請做決定"; }
+  else{ wb.classList.remove('is-disabled'); wt.textContent="繼續觀望"; wd.textContent=`等下一份 → ${FRAMES[f+1].label}`; }
   drawForecast(t,c,f,0);
 }
 function updateHUD(anim){
@@ -1050,6 +1049,7 @@ function bind(){
   document.getElementById('cityBack').onclick=()=>show('s-title');
   document.getElementById('cityGo').onclick=()=>{ if(S.city) startTerm(); };
   document.getElementById('waitBtn').onclick=advanceFrame;
+  document.getElementById('waitBtn').onkeydown=e=>{if(e.key==="Enter"||e.key===" ")advanceFrame();};
   document.getElementById('btnOff').onclick=()=>decide("off");
   document.getElementById('btnWork').onclick=()=>decide("work");
   document.getElementById('btnOff').onkeydown=e=>{if(e.key==="Enter"||e.key===" ")decide("off");};
